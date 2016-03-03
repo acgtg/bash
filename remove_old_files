@@ -1,0 +1,3 @@
+#command to remove files and directories older than 7 days
+
+find /var/tmp/* -ctime +7 -exec rm -rf {} \;
