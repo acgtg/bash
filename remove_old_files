@@ -5,3 +5,7 @@ find /var/tmp/* -ctime +7 -exec rm -rf {} \;
 #command to remove many files, list of files so long so you should use xargs
 
 find /tmp -maxdepth 1 -name "some_pattern*" -print0 | xargs -0 rm
+
+#better to use exec xargs since xargs will break if the number of files it too large. Use -exec  instead
+
+find /tmp -name "hudson*.sh*" -exec rm -v "{}" \;
