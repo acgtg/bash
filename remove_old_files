@@ -8,4 +8,4 @@ find /tmp -maxdepth 1 -name "some_pattern*" -print0 | xargs -0 rm
 
 #better to use exec xargs since xargs will break if the number of files it too large. Use -exec  instead
 
-find /tmp -name "hudson*.sh*" -exec rm -v "{}" \;
+find /tmp -name "some_pattern*" -exec rm -v "{}" \;
