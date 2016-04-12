@@ -1,20 +1,15 @@
-#command to remove files and directories older than 7 days
-
+# command to remove files and directories older than 7 days
 find /var/tmp/* -ctime +7 -exec rm -rf {} \;
 find /var/spool/abrt/* -type d -ctime +3 -exec rm -rf {} \; 
 
-#command to remove many files, list of files so long so you should use xargs
-
+# command to remove many files, list of files so long so you should use xargs
 find /tmp -maxdepth 1 -name "some_pattern*" -print0 | xargs -0 rm
 
-#better to use exec xargs since xargs will break if the number of files it too large. Use -exec  instead
-
+# better to use exec xargs since xargs will break if the number of files it too large. Use -exec  instead
 find /tmp -name "some_pattern*" -exec rm -v "{}" \;
 
-#remove files bigger than 10M
-
+# remove files bigger than 10M
 find /tmp -size +10M -exec rm -f '{}' \;
 
-
-# Puppet Name: cleanup /tmp
-0 * * * * find . -type f -ctime +1 -not -path './jenkins*' | xargs rm 2>&1 >/dev/null
+# to clean up /tmp space from anything older than 24 hours with exclusion of /tmp/Jenkins
+find . -type f -ctime +1 -not -path './jenkins*' | xargs rm 2>&1 >/dev/null
