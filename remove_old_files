@@ -14,3 +14,7 @@ find /tmp -name "some_pattern*" -exec rm -v "{}" \;
 #remove files bigger than 10M
 
 find /tmp -size +10M -exec rm -f '{}' \;
+
+
+# Puppet Name: cleanup /tmp
+0 * * * * find . -type f -ctime +1 -not -path './jenkins*' | xargs rm 2>&1 >/dev/null
