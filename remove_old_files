@@ -13,3 +13,6 @@ find /tmp -size +10M -exec rm -f '{}' \;
 
 # to clean up /tmp space from anything older than 24 hours with exclusion of /tmp/Jenkins
 find . -type f -ctime +1 -not -path './jenkins*' | xargs rm 2>&1 >/dev/null
+
+# to remove range of files
+rm atop_201604{01..10}
