@@ -3,3 +3,7 @@
 
 p=$( lsof /tmp/ | grep "(deleted)" | awk '{print $2}' | uniq )
 kill $p
+
+# in case if lsof doesn't work use find
+p=$( find /proc/*/fd -ls | grep '(deleted)' | awk '{print $11}' | grep -o -E '[0-9][0-9][0-9][0-9]' | uniq )
+
