@@ -1,0 +1,2 @@
+cd /partition_that_is_out_of_inodes
+for i in *; do echo -e "$(find $i | wc -l)\t$i"; done | sort -n
