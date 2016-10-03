@@ -1,2 +1,3 @@
+df -i #to see which partition is running out of inodes
 cd /partition_that_is_out_of_inodes
 for i in *; do echo -e "$(find $i | wc -l)\t$i"; done | sort -n
