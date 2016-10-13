@@ -21,3 +21,6 @@ rm -f atop_201607{01..19}.1
 
 # when you want to remove too many files you get an error: "/bin/rm: Argument list too long" so you should use this command:
 find . -maxdepth 1 -name "*.closed" -print0 | xargs -0 rm
+
+# tmp_files_older_than_1_day except vmware files
+find /tmp -mtime +1 -not -path ''/tmp/vmware*/*'' -exec rm -rf {} \;
