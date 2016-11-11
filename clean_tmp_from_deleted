@@ -1,7 +1,7 @@
 # One liner prints deleted files on tmp partition and kill processes 
 # which still holding these files. As the result it frees up disk space on tmp partition
 
-p=$( lsof /tmp/ | grep "(deleted)" | awk '{print $2}' | uniq | grep -v grep)
+p=$(lsof /tmp/ | grep "(deleted)" | awk '{print $2}' | uniq | grep -v grep)
 kill $p
 
 # in case if lsof doesn't work use find
