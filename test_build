@@ -1,0 +1,99 @@
+#!/bin/sh
+#
+# Script to run a build through Electric Accelerator
+# and verify that the system is working as expected
+
+# Define a few globals
+buildTimeout=600 #seconds to wait before killing build
+emqSource=/tools/swdev/bin/emq
+buildLog=/tmp/buildLog.txt
+buildRunning=/tmp/buildInfo.txt
+
+# Function to run a build
+function startBuild()
+{	
+	# Do a clean to make sure we're starting fresh
+	cleanOutput=$(make clean 2>&1)
+	if [ $? != 0 ]; then
+        	echo "ERROR: Problem cleaning directory: $cleanOutput"
+        	exit 1
+	fi
+
+	# Submit the build via emq and then monitor it
+	$emqSource > $buildLog 2>&1 &
+	emakePID=$!
+	buildStart=$(date +"%s")
+	if [ $? != 0 ]; then
+        	echo "ERROR: Error submitting build to emq. For more info, check $buildLog"
+		kill $emakePID
+        	exit 2
+	fi
+	
+	# Grab the build id once the build has started
+	buildID=""
+	spinTime=0
+	while [ -z "$buildID" ]; do
+        	sleep 1
+        	let spinTime+=1
+        	if [ $spinTime -ge 5 ]; then #wait 5s for build to start
+			buildID=-1
+			break
+        	fi
+        	buildID=$(cat $buildLog | sed -rn "s/.*Starting build: ([[:digit:]]+).*/\1/p")
+	done
+
+	# Spin and watch the build and see if it finishes
+	buildTime=""
+	let spinTime=0
+	while [ -z "$buildTime" ]; do
+        	sleep 1
+        	let spinTime+=1
+        	if [ $spinTime -ge 10 ]; then #wait 10s for build to finish
+			buildTime=-1
+			break
+        	fi
+        	buildTime=$(cat $buildLog | sed -rn "s/.*Duration: ([[:digit:]]+:[[:digit:]]+).*/\1/p")
+	done
+
+	if [[ $buildID -ne -1 && "$buildTime" =~ (^[[:digit:]]+:[[:digit:]]+$) ]]; then
+
+		# After the build completes, verify we can run our sample app
+		if [ "$(./Hi 2>&1)" != "BuildOK" ]; then
+        		echo "ERROR: Unable to run sample app. Application may not have built successfully."
+        		exit 2
+		fi
+
+		# If we passed all tests, format the emake time and echo results
+        	buildTime=$(echo $buildTime | awk -F: '{print ($1 *60) + $2}')
+
+		echo "Build ID: $buildID ran successfully in $buildTime second(s)."
+		rm -f "$buildRunning"
+	else
+		# If build still running, log it to info file and exit
+		echo "$emakePID,$buildID,$buildStart" > "$buildRunning"
+	fi
+}
+
+if [ -e "$buildRunning" ]; then
+	emakePID=$(cat "$buildRunning" | awk -F, '{print $1}')
+	buildID=$(cat "$buildRunning" | awk -F, '{print $2}')
+	buildStart=$(cat "$buildRunning" | awk -F, '{print $3}')
+	now=$(date +"%s")
+	buildTime=$(cat "$buildLog" | sed -rn "s/.*Duration: ([[:digit:]]+:[[:digit:]]+).*/\1/p")
+
+	if [ -z $buildTime ]; then
+		if [ $(($now - $buildStart)) -gt $buildTimeout ]; then
+			echo "ERROR: Build timeout.  Build ID: $buildID has been running longer than $buildTimeout seconds"
+			echo "Killing PID: $emakePID"
+			kill $emakePID
+			exit 2
+		else
+			echo "Build ID: $buildID still running, but not timedout"	
+		fi
+	else
+		echo "Last build ID: $buildID finished in $buildTime seconds"
+		startBuild
+	fi
+else
+	startBuild
+fi
