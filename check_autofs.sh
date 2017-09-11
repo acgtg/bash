@@ -26,7 +26,7 @@ done
 
 printf '%s\n' "${output[@]}" | sort
 
-if (( $x >= 1 ))
+if [ $x -ge 1 ]
    then
      exit $STATE_CRITICAL
    else
