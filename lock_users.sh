@@ -5,10 +5,11 @@ if [ ! -d /home/OLD_account ]; then
    mkdir -p /home/OLD_account
 fi
 
-mUser=("$@")
 
 lock_user()
 {
+  echo $user
+  
   id ${user} > /dev/null 2>&1
   user_exist=$?
 
@@ -26,7 +27,8 @@ lock_user()
   fi
 }
 
-for user in "${mUser[@]}"
+for user in ${mUser}
   do
+    echo "Locking user $user"
     lock_user ${user}
   done
