@@ -1,6 +1,7 @@
-# command to remove files and directories older than 7 days
+# command to remove files and directories older than x days
 find /var/tmp/* -ctime +7 -exec rm -rf {} \;
 find /var/spool/abrt/* -type d -ctime +3 -exec rm -rf {} \; 
+find /path/*  -mtime +30 -exec rm {} \;
 
 # command to remove many files, list of files so long so you should use xargs
 find /tmp -maxdepth 1 -name "some_pattern*" -print0 | xargs -0 rm
