@@ -12,7 +12,6 @@ cd updated-gist
 date >> bumpme
 pwd >> bumpme
 hostname >> bumpme
-ping -c 3 google.com >> bumpme
 ls -la >> bumpme
 cat bumpme
 
